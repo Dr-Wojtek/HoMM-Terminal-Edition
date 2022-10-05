@@ -1,8 +1,10 @@
-import random
 from entities import Player
 from entities import Gameboard
 import os
-import time
+
+# This program is a hobby project. Its goal is to simulate the game 'Heroes of Might and Magic 3' in the terminal.
+# The code is written by Alex Stråe, from Sweden, aka Dr-Wojtek @ Git Hub. Creatures, heroes and town attributes and
+# names, are, where copied correctly, copied from the original game 'Heroes of Might and Magic 3'.
 
 class Gamecore:
     map_size = "large"
@@ -12,22 +14,22 @@ class Gamecore:
     player_two = None
     player_three = None
     player_four = None
-    available_kingdoms = ["Castle", "Inferno"]
+    available_kingdoms = ["Castle", "Inferno", "Rampart", "Tower"]
 
     def clear_window():
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def dialogue_display(input1 = "", input2 = "", input3 = "", input4 = ""):
-        print("" + '{:-^100s}'.format(""))
-        print("|" + '{:^100s}'.format(input1 + input2) + "|")
-        print("|" + '{:^100s}'.format(input3) + "|")
-        print("" + '{:-^100s}'.format(""))
+    def dialogue_display(input1="", input2="", input3="", input4=""):
+        print("" + '{:-^140s}'.format(""))
+        print("|" + '{:^140s}'.format(input1 + input2) + "|")
+        print("|" + '{:^140s}'.format(input3 + input4) + "|")
+        print("" + '{:-^140s}'.format(""))
 
-    def dialogue_return(input1 = "", input2 = "", input3 = "", input4 = ""):
-        print("" +'{:-^100s}'.format("-"))
-        print("|" + '{:^100s}'.format(input1 + input2) + "|")
-        print("|" + '{:^100s}'.format(input3) + "|")
-        print("" + '{:-^100s}'.format("-"))
+    def dialogue_return(input1="", input2="", input3="", input4=""):
+        print("" + '{:-^140s}'.format("-"))
+        print("|" + '{:^140s}'.format(input1 + input2) + "|")
+        print("|" + '{:^140s}'.format(input3 + input4) + "|")
+        print("" + '{:-^140s}'.format("-"))
         choice = input("\n")
         return choice
 
@@ -36,9 +38,10 @@ class Gamecore:
         if choice == "Y":
             print("Maximize this window until you've seen the map. Then adjust accordingly.\n")
             input("Press Enter to continue.\n")
-            Gamecore.clear_window()
 
 # GAME START
+    print_start()
+    clear_window()
     dialogue_display("Welcome to Heroes of Might and Magic - Terminal Edition!")
     number_of_players = dialogue_return("How many human players?", "", "2-4:")
     while number_of_players not in ("2", "3", "4"):
@@ -49,13 +52,13 @@ class Gamecore:
     for i in range(number_of_players):
         p = None
         if i == 0:
-            p = Player(dialogue_return("Player 1: What is your name?").capitalize(), 1, "\033[1;31;40m")
+            p = Player(dialogue_return("Player 1: What is your name?").capitalize(), 1, "\033[1;91;100m")
         elif i == 1:
-            p = Player(dialogue_return("Player 2: And what is your name?").capitalize(), 2, "\033[1;34;40m")
+            p = Player(dialogue_return("Player 2: And what is your name?").capitalize(), 2, "\033[1;94;100m")
         elif i == 2:
-            p = Player(dialogue_return("Player 3: And you?").capitalize(), 3)
+            p = Player(dialogue_return("Player 3: And you?").capitalize(), 3, "\033[1;92;100m")
         elif i == 3:
-            p = Player(dialogue_return("Player 4: Always last eh?").capitalize(), 4)
+            p = Player(dialogue_return("Player 4: Yes?").capitalize(), 4, "\033[1;93;100m")
         list_of_players.append(p)
 
     clear_window()
@@ -63,19 +66,18 @@ class Gamecore:
     map = Gameboard(num_rows, num_cols)
     map.beautifier(num_rows, num_cols)
 
-    for i in range(number_of_players):
-        list_of_players[i].choose_kingdom(available_kingdoms)
-        list_of_players[i].create_heroes()
-        list_of_players[i].heroes[0].create_starting_army()
-        list_of_players[i].create_castles()
-        list_of_players[i].set_locations(number_of_players, num_rows, num_cols, map)
-        list_of_players[i].update_discovery(map)
+    for p in list_of_players:
+        p.choose_kingdom(available_kingdoms)
+        p.create_heroes()
+        p.create_towns()
+        p.set_locations(number_of_players, num_rows, num_cols, map)
+        p.update_discovery(map)
 
     map.populator(num_rows, num_cols, number_of_players)
 
     while len(list_of_players) > 1:
-        for i in range(len(list_of_players)):
-            player = list_of_players[i]
+        for p in list_of_players:
+            player = p
             clear_window()
             dialogue_return(player.name, "'s turn!", "Press Enter.")
             player.new_turn()
@@ -85,4 +87,3 @@ class Gamecore:
 
             # TURN ENDS NOW
     dialogue_display(list_of_players[0].name, " has won the game!!!")
-
