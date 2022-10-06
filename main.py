@@ -34,9 +34,11 @@ class Gamecore:
         return choice
 
     def print_start():
-        choice = input("Is this your first time playing Heroes of Might and Magic - Terminal Edition? Y/N\n").capitalize()
+        choice = input("Is this your first time playing Heroes of Might and Magic - Terminal Edition? Y/N:\n").capitalize()
         if choice == "Y":
             print("Maximize this window until you've seen the map. Then adjust accordingly.\n")
+            print("It is recommended to use a light grey background with black letters for your terminal.\n")
+            print("If the map has black lines in it your font size is too large. Lower your font size in your settings.\n")
             input("Press Enter to continue.\n")
 
 # GAME START
@@ -52,13 +54,13 @@ class Gamecore:
     for i in range(number_of_players):
         p = None
         if i == 0:
-            p = Player(dialogue_return("Player 1: What is your name?").capitalize(), 1, "\033[1;91;100m")
+            p = Player(dialogue_return("Player 1: What is your name?").capitalize(), 1, "\033[1;37;41m")
         elif i == 1:
-            p = Player(dialogue_return("Player 2: And what is your name?").capitalize(), 2, "\033[1;94;100m")
+            p = Player(dialogue_return("Player 2: And what is your name?").capitalize(), 2, "\033[1;37;44m")
         elif i == 2:
-            p = Player(dialogue_return("Player 3: And you?").capitalize(), 3, "\033[1;92;100m")
+            p = Player(dialogue_return("Player 3: And you?").capitalize(), 3, "\033[1;37;42m")
         elif i == 3:
-            p = Player(dialogue_return("Player 4: Yes?").capitalize(), 4, "\033[1;93;100m")
+            p = Player(dialogue_return("Player 4: Yes?").capitalize(), 4, "\033[1;37;45m")
         list_of_players.append(p)
 
     clear_window()

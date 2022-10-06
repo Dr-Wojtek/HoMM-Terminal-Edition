@@ -3,6 +3,7 @@ import os
 import time
 import sys
 from renderer import Renderer
+
 # This program is a hobby project. Its goal is to simulate the game 'Heroes of Might and Magic 3' in the terminal.
 # The code is written by Alex Stråe, from Sweden, aka Dr-Wojtek @ Git Hub. Creatures, heroes and town attributes and
 # names, are, where copied correctly, copied from the original game 'Heroes of Might and Magic 3'.
@@ -35,7 +36,8 @@ class Player:
         self.dailysu = 0
         self.dailym = 0
         self.dailyge = 0
-        self.weekday = 0
+        self.weekday = 1
+        self.week = 1
 
     def __str__(self):
         return f'{self.name}'
@@ -58,6 +60,29 @@ class Player:
         choice = input("\n")
         return choice
 
+    def view_info(self):
+        print("")
+        print("" + '{:^40s}'.format("Player: " + self.name))
+        for town in self.towns:
+            print("|" + '{:-^40s}'.format("  " + town.name + ", Kingdom: " + town.kingdom + "  ") + "|")
+            if town.army:
+                for unit in town.army:
+                    print("|" + '{:^40s}'.format(unit.name + ", " + str(unit.amount) + " units") + "|")
+            else:
+                print("|" + '{:^40s}'.format("No army.") + "|")
+            print("|" + '{:-^40s}'.format("") + "|")
+        for hero in self.heroes:
+            print("|" + '{:-^40s}'.format("  " + hero.name + ", " + hero.kind + " level: " + str(hero.level) + "  ") + "|")
+            print("|" + '{:^40}'.format("Daily movement points: " + str(hero.new_speed) + ".") + "|")
+            print("|" + '{:^40}'.format("Attack: " + str(hero.attack) + "   Defense: " + str(hero.defense)) + "|")
+            print("|" + '{:^40}'.format("Knowledge: " + str(hero.knowledge) + " Spell Power: " + str(hero.spell_power)) + "|")
+            print("|" + '{:-^40}'.format("  Army  ") + "|")
+            for unit in hero.army:
+                print("|" + '{:^40s}'.format(unit.name + ", " + str(unit.amount) + " units") + "|")
+            print("|" + '{:-^40s}'.format("") + "|")
+        input("\n")
+
+
     def update_life(self, change):
         self.heroes_left += change
         if self.heroes_left == 0:
@@ -79,11 +104,15 @@ class Player:
             for i in range(len(self.heroes)):
                 self.heroes[i].speed_left = self.heroes[i].new_speed
         self.weekday += 1
-        if self.weekday == 7:
-            self.weekday = 0
+        if self.weekday == 8:
+            self.weekday = 1
+            sekf.week += 1
             if self.towns != []:
                 for i in range(len(self.towns)):
                     self.towns[i].new_week()
+        for hero in self.heroes:
+            if hero.spell_points < hero.knowledge:
+                hero.spell_points += 4
 
 
     def choose_kingdom(self, available_kingdoms):
@@ -101,13 +130,15 @@ class Player:
                 case 0:
                     new_hero = Hero("Orrin", "Knight", 2, 1, 1, 1, self)
                 case 1:
-                    new_hero = Hero("Adelaide", "Cleric", 1, 1, 2, 1, self)
+                    new_hero = Hero("Adelaide", "Cleric", 1, 1, 2, 1, self, [{"name": "Magic Arrow", "cost": 5,
+                        "damage": 10, "effect": ""}, {"name": "Haste", "cost": 5, "damage": 0, "effect": "Haste"}])
                 case 2:
                     new_hero = Hero("Tyris", "Knight", 2, 2, 0, 1, self)
         elif self.kingdom == "Inferno":
             match self.hero_ticker:
                 case 0:
-                    new_hero = Hero("Zydar", "Heretic", 1, 1, 2, 1, self)
+                    new_hero = Hero("Zydar", "Heretic", 1, 1, 2, 1, self, [{"name": "Magic Arrow", "cost": 5,
+                        "damage": 10, "effect": ""}, {"name": "Slow", "cost": 5, "damage": 0, "effect": "Slow"}])
                 case 1:
                     new_hero = Hero("Calh", "Demoniac", 2, 2, 1, 0, self)
                 case 2:
@@ -119,11 +150,13 @@ class Player:
                 case 1:
                     new_hero = Hero("Ryland", "Ranger", 2, 1, 1, 1, self)
                 case 2:
-                    new_hero = Hero("Elleshar", "Druid", 1, 1, 1, 2, self)
+                    new_hero = Hero("Elleshar", "Druid", 1, 1, 1, 2, self, [{"name": "Magic Arrow", "cost": 5,
+                        "damage": 10, "effect": ""}, {"name": "Slow", "cost": 5, "damage": 0, "effect": "Slow"}])
         elif self.kingdom == "Tower":
             match self.hero_ticker:
                 case 0:
-                    new_hero = Hero("Solmyr", "Wizard", 0, 1, 2, 2, self)
+                    new_hero = Hero("Solmyr", "Wizard", 0, 1, 2, 2, self, [{"name": "Magic Arrow", "cost": 5,
+                        "damage": 10, "effect": ""}, {"name": "Haste", "cost": 5, "damage": 0, "effect": "Haste"}])
                 case 1:
                     new_hero = Hero("Fafner", "Alchemist", 1, 1, 2, 1, self)
                 case 2:
@@ -142,13 +175,13 @@ class Player:
     def create_towns(self):
         new_town = None
         if self.kingdom == "Castle":
-            new_town = Town("Valetta", self.kingdom, self, 1, 1)
+            new_town = Town("Valetta", self.kingdom, self, 1, 0)
         elif self.kingdom == "Inferno":
-            new_town = Town("Styx", self.kingdom, self, 1, 1)
+            new_town = Town("Styx", self.kingdom, self, 1, 0)
         elif self.kingdom == "Rampart":
-            new_town = Town("Goldenglade", self.kingdom, self, 1, 1)
+            new_town = Town("Goldenglade", self.kingdom, self, 1, 0)
         elif self.kingdom == "Tower":
-            new_town = Town("Celeste", self.kingdom, self, 1, 1)
+            new_town = Town("Celeste", self.kingdom, self, 1, 0)
         self.towns.append(new_town)
 
     def set_locations(self, number_of_players, input_rows, input_cols, map):
@@ -190,6 +223,7 @@ class Player:
         self.heroes[0].location = self.towns[0].location
         map.square[dice_row][dice_col].has_object = True
         map.square[dice_row][dice_col].object_name = "Town"
+        map.square[dice_row][dice_col].operated_by = self
         map.square[dice_row][dice_col].town = self.towns[0]
         map.square[dice_row][dice_col].has_hero = True
         map.square[dice_row][dice_col].hero = self.heroes[0]
@@ -220,29 +254,6 @@ class Player:
                         d = 1
                     map.square[pn+c][pl+d].seen[self.number-1] = 1
 
-
-    def view_info(self):
-        print("")
-        print("" + '{:^40s}'.format("Player: " + self.name))
-        for town in self.towns:
-            print("|" + '{:-^40s}'.format("  " + town.name + ", Kingdom: " + town.kingdom + "  ") + "|")
-            if town.army:
-                for unit in town.army:
-                    print("|" + '{:^40s}'.format(unit.name + ", " + str(unit.amount) + " units") + "|")
-            else:
-                print("|" + '{:^40s}'.format("No army.") + "|")
-            print("|" + '{:-^40s}'.format("") + "|")
-        for hero in self.heroes:
-            print("|" + '{:-^40s}'.format("  " + hero.name + ", " + hero.kind + " level: " + str(hero.level) + "  ") + "|")
-            print("|" + '{:^40}'.format("Daily movement points: " + str(hero.new_speed) + ".") + "|")
-            print("|" + '{:^40}'.format("Attack: " + str(hero.attack) + "   Defense: " + str(hero.defense)) + "|")
-            print("|" + '{:^40}'.format("Knowledge: " + str(hero.knowledge) + " Spell Power: " + str(hero.spell_power)) + "|")
-            print("|" + '{:-^40}'.format("  Army  ") + "|")
-            for unit in hero.army:
-                print("|" + '{:^40s}'.format(unit.name + ", " + str(unit.amount) + " units") + "|")
-            print("|" + '{:-^40s}'.format("") + "|")
-        input("\n")
-
     def interpretor(self, choice, map, list_of_players):
         if choice.lower() == "view":
             self.view_info()
@@ -253,6 +264,17 @@ class Player:
             else:
                 hero_choice = input("Move which hero?\n")
             self.move_obj(hero_choice, map)
+
+        elif choice.lower() == "spells":
+            if len(self.heroes) == 1:
+                self.heroes[0].view_spells()
+            else:
+                hero = input("Spells for which hero?\n")
+                if self.has_hero_name(hero):
+                    hero = self.get_hero(hero)
+                    hero.view_spells()
+                else:
+                    self.dialogue_display("No hero found.")
 
         elif choice.lower() == "town":
             if self.towns != []:
@@ -307,6 +329,7 @@ class Player:
         if self.has_hero_name(input_hero):
             hero = self.get_hero(input_hero)
             while True:
+                Player.clear_window()
                 input_board.view_board(self, True)
                 direction = input("Use keys WASD to move straight, QEZX to move diagonally."
                                   "See the top action bar for other commands.\n").lower()
@@ -314,9 +337,11 @@ class Player:
                     hero.speed_left = 100
                     hero.new_speed = 100
                     direction = ""
-                while direction == "" or direction[0] not in ("q", "w", "e", "a", "s", "d", "z", "x", "o"):
+                while direction == "" or direction == "end turn" or direction[0] not in ("q", "w", "e", "a", "s", "d", "z", "x", "o"):
                     direction = input("     Move with QWEASDZX or type ""o"" to exit movement.\n")
                 for i in range(len(direction)):
+                    if direction[i] not in ("q", "w", "e", "a", "s", "d", "z", "x", "o"):
+                        return
                     old_pos = hero.location
                     new_pos = [0, 0]
                     match direction[i]:
@@ -387,6 +412,7 @@ class Player:
                                 new_loc.town.alive = True
                             else:
                                 self.towns.append(new_loc.town)
+                                new_loc.operated_by = self
                                 for i in range(len(new_loc.town.operating_player.towns)):
                                     if new_loc.town.operating_player.towns[i].name == new_loc.town.name:
                                         new_loc.town.operating_player.towns.pop(i)
@@ -394,6 +420,20 @@ class Player:
                                 if self.towns[-1].hall_lvl == 4:
                                     self.towns[-1].hall_lvl = 3
                                 self.dialogue_display("You have conquered a town!")
+                        elif new_loc.has_object and new_loc.object_name == "Town" and \
+                                new_loc.town.operating_player == self:
+                            old_loc.has_hero = False
+                            old_loc.hero = None
+                            new_loc.has_hero = True
+                            new_loc.hero = hero
+                            hero.location = new_pos
+                            self.enter_town(new_loc.town, input_board)
+                            return
+
+                        elif new_loc.has_object and type(new_loc.object_name) == Unit:
+                            new_loc.object_name.operating_hero.army.append(new_loc.object_name)
+                            self.start_war(hero, new_loc.object_name.operating_hero, new_loc, old_loc)
+
                         elif new_loc.has_object:
                             hero.confront_object(new_loc)
                             old_loc.has_hero = False
@@ -429,6 +469,7 @@ class Player:
                 battlefield.square[u.location[0]][0].has_hero = True
                 battlefield.square[u.location[0]][0].hero = u
 
+
         for u in defender.army:
             if u.amount > 0:
                 u.location[0] = u.start_location[0] + 1
@@ -439,20 +480,34 @@ class Player:
         while attacker.alive and defender.alive:
             for u in attacker.army:
                 u.has_retaliated = False
+                u.speed_left = u.new_speed
             for u in defender.army:
                 u.has_retaliated = False
+                u.speed_left = u.new_speed
+            attacker.can_throw_spell = True
+            defender.can_throw_spell = True
             for i in range(7):
                 if i < len(attacker.army):
                     if attacker.army[i].amount > 0:
-                        attacker.army[i].speed_left = attacker.army[i].new_speed
                         attacker.operating_player.war_move_obj(attacker.army[i], defender, battlefield)
+                        attacker.army[i].speed_left = attacker.army[i].new_speed
                         attacker.army[i].turn_left = False
+                        if attacker.army[i].battle_actions:
+                            for action in attacker.army[i].battle_actions:
+                                if action[1] == 0:
+                                    attacker.army[i].battle_actions.remove(action)
+                                    attacker.army[i].spells_affected_by.remove(action[0])
 
                 if i < len(defender.army):
                     if defender.army[i].amount > 0:
-                        defender.army[i].speed_left = defender.army[i].new_speed
                         defender.operating_player.war_move_obj(defender.army[i], attacker, battlefield)
                         defender.army[i].turn_left = False
+                        defender.army[i].speed_left = defender.army[i].new_speed
+                        if defender.army[i].battle_actions:
+                            for action in defender.army[i].battle_actions:
+                                if action[1] == 0:
+                                    defender.army[i].battle_actions.remove(action)
+                                    defender.army[i].spells_affected_by.remove(action[0])
 
                 counter = 0
                 for u in attacker.army:
@@ -466,6 +521,8 @@ class Player:
                     self.heroes_left -= 1
                     for unit in defender.army:
                         unit.turn_left = True
+                    if type(defender) == Hero:
+                        defender.can_throw_spell = True
                     break
                 counter = 0
                 for u in defender.army:
@@ -483,6 +540,7 @@ class Player:
                     elif type(defender) == Town:
                         defender.army = []
                         self.towns.append(defender)
+                        battle_loc.operated_by = self
                         for i in range(len(defender.operating_player.towns)):
                             if defender.operating_player.towns[i].name == battle_loc.town.name:
                                 defender.operating_player.towns.pop(i)
@@ -492,15 +550,28 @@ class Player:
                         print("You have conquered a town!")
                     for unit in attacker.army:
                         unit.turn_left = True
+                    attacker.can_throw_spell = True
                     break
         return
 
     def war_move_obj(self, attacker, defending_hero, battlefield):
+        if attacker.battle_actions:
+            for action in attacker.battle_actions:
+                if action[0] == "slow":
+                    attacker.speed_left -= 2
+                    action[1] -= 1
+                elif action[0] == "blind":
+                    action[1] -= 1
+                    return
+                elif action[0] == "haste":
+                    attacker.speed_left += 3
+                    action[1] -= 1
         while True:
+            Player.clear_window()
             battlefield.view_battlefield(self, attacker)
-            choice = input("Move with QWEASDZX or use commands in the action bar.\n").lower()
+            choice = input("Enter commands.\n").lower()
             while choice == "" or choice[0] not in ("q", "w", "e", "a", "s", "d", "z", "x", "o", "r"):
-                choice = input("     Move with QWEASDZX or use commands in the action bar.\n")
+                choice = input("     Move with QWEASDZX or use commands in the action bar.\n").lower()
 
             if choice == "r" and attacker.isranged:
                 while True:
@@ -510,9 +581,21 @@ class Player:
                             defender = defending_hero.army[i]
                             new_loc = battlefield.square[defender.location[0]][defender.location[1]]
                             original_health = defender.health
-                            total_damage_attack = attacker.amount * attacker.damage
+                            if type(attacker.operating_hero) == Hero:
+                                total_damage_attack = attacker.amount * attacker.damage * \
+                                                      ((attacker.attack + attacker.operating_hero.attack) * 2 / 100 + 1)
+                            else:
+                                total_damage_attack = attacker.amount * attacker.damage * \
+                                                      (attacker.attack * 2 / 100 + 1)
+                            total_damage_attack = int(total_damage_attack)
                             original_attack_damage = total_damage_attack
-                            defender.health -= total_damage_attack
+                            if type(defender.operating_hero) == Hero:
+                                defender.health -= total_damage_attack / \
+                                                   ((defender.defense + defender.operating_hero.defense) * 2 / 100 + 1)
+                            else:
+                                defender.health -= total_damage_attack / \
+                                                   (defender.operating_hero.defense * 2 / 100 + 1)
+                            defender.health = int(defender.health)
                             total_damage_attack -= original_health
                             while defender.health <= 0:
                                 defender.amount -= 1
@@ -531,39 +614,119 @@ class Player:
             elif choice == "r" and attacker.isranged == False:
                 print("         This unit does not have a ranged attack!.")
                 time.sleep(1)
+
+            elif choice == "spells":
+                if attacker.operating_hero.can_throw_spell:
+                    while True:
+                        attacker.operating_hero.view_spells()
+                        spell = ""
+                        while spell == "":
+                            spell = self.dialogue_return("Name the spell you want to throw or ""C"" to cancel.").title()
+                        if spell == "C":
+                            break
+                        target = ""
+                        while target == "":
+                            target = self.dialogue_return("Name your target or ""C"" to cancel.").title()
+                        if target == "C":
+                            break
+                        spell_damage = None
+                        spell_effect = None
+                        spell_cost = None
+
+                        for spell_in_book in attacker.operating_hero.spellbook:
+                            if spell == spell_in_book.get("name"):
+                                spell_damage = spell_in_book.get("damage")
+                                spell_effect = spell_in_book.get("effect").lower()
+                                spell_cost = spell_in_book.get("cost")
+                        if spell_cost == None:
+                            self.dialogue_display("No such spell found.")
+                        elif spell_cost > attacker.operating_hero.spell_points:
+                            self.dialogue_display("You don't have the spell points.")
+                        else:
+                            for unit in defending_hero.army:
+                                if target == unit.name:
+                                    target = unit
+                            if type(target) == str:
+                                print("         Found no unit with that name.")
+                                break
+                            else:
+                                if spell_damage:
+                                    attacker.operating_hero.spell_points -= spell_cost
+                                    attacker.operating_hero.can_throw_spell = False
+                                    original_spell_damage = spell_damage * attacker.operating_hero.spell_power
+                                    defender = target
+                                    new_loc = battlefield.square[defender.location[0]][defender.location[1]]
+                                    original_health = defender.health
+                                    defender.health -= spell_damage * attacker.operating_hero.spell_power
+                                    defender.health = int(defender.health)
+                                    spell_damage -= original_health
+                                    while defender.health <= 0:
+                                        defender.amount -= 1
+                                        defender.health = original_health
+                                        if spell_damage > 0:
+                                            defender.health -= spell_damage
+                                            spell_damage -= original_health
+                                    if defender.amount < 1:
+                                        new_loc.has_hero = False
+                                        new_loc.hero = None
+                                    self.dialogue_display(attacker.operating_hero.name + " throws  " + spell + " at "
+                                                    + defender.name, "", "with " + str(original_spell_damage) + " damage!")
+                                    break
+                                else:
+                                    if spell_effect == "slow":
+                                        if spell_effect not in target.spells_affected_by:
+                                            attacker.operating_hero.spell_points -= spell_cost
+                                            attacker.operating_hero.can_throw_spell = False
+                                            target.spells_affected_by.append(spell_effect)
+                                            target.battle_actions.append(["slow", attacker.operating_hero.spell_power])
+                                            self.dialogue_display(attacker.operating_hero.name + " throws  " + spell + " at " +
+                                                    target.name + "!")
+                                            break
+                                        else:
+                                            print("         Unit already affected by " + spell_effect + ".")
+                                            time.sleep(1)
+                                            break
+                else:
+                    print("         You have already thrown a spell this cycle.")
+                    time.sleep(1)
+
+
             else:
                 for i in range(len(choice)):
                     old_pos = attacker.location
                     new_pos = [0, 0]
-                    match choice[i]:
-                        case "q":
+                    if choice[i] == "q":
                             new_pos[0] = old_pos[0] - 1
                             new_pos[1] = old_pos[1] - 1
-                        case "w":
+                    elif choice[i] == "w":
                             new_pos[0] = old_pos[0] - 1
                             new_pos[1] = old_pos[1]
-                        case "e":
+                    elif choice[i] == "e":
                             new_pos[0] = old_pos[0] - 1
                             new_pos[1] = old_pos[1] + 1
-                        case "a":
+                    elif choice[i] == "a":
                             new_pos[0] = old_pos[0]
                             new_pos[1] = old_pos[1] - 1
-                        case "s":
+                    elif choice[i] == "s":
                             new_pos[0] = old_pos[0] + 1
                             new_pos[1] = old_pos[1]
-                        case "d":
+                    elif choice[i] == "d":
                             new_pos[0] = old_pos[0]
                             new_pos[1] = old_pos[1] + 1
-                        case "z":
+                    elif choice[i] == "z":
                             new_pos[0] = old_pos[0] + 1
                             new_pos[1] = old_pos[1] - 1
-                        case "x":
+                    elif choice[i] == "x":
                             new_pos[0] = old_pos[0] + 1
                             new_pos[1] = old_pos[1] + 1
-                        case "o":
-                            print("Ending turn.")
+                    elif choice[i] == "o":
+                            print("     Ending turn.")
                             time.sleep(1)
                             return
+                    else:
+                        print("     Invalid input.")
+                        time.sleep(1)
+                        break
                     if new_pos[0] < 0:
                         new_pos[0] = 0
                     elif new_pos[0] == len(battlefield.square):
@@ -593,9 +756,22 @@ class Player:
                             attacker.speed_left -= new_loc.speed_drain
                             defender = new_loc.hero
                             original_health = defender.health
-                            total_damage_attack = attacker.amount * attacker.damage
+                            total_damage_attack = None
+                            if type(attacker.operating_hero) == Hero:
+                                total_damage_attack = attacker.amount * attacker.damage * \
+                                                      ((attacker.attack + attacker.operating_hero.attack) * 2 / 100 + 1)
+                            else:
+                                total_damage_attack = attacker.amount * attacker.damage *\
+                                                      (attacker.attack * 2 / 100 + 1)
+                            total_damage_attack = int(total_damage_attack)
                             original_attack_damage = total_damage_attack
-                            defender.health -= total_damage_attack
+                            if type(defender.operating_hero) == Hero:
+                                defender.health -= total_damage_attack /\
+                                                   ((defender.defense + defender.operating_hero.defense) * 2 / 100 + 1)
+                            else:
+                                defender.health -= total_damage_attack /\
+                                                   (defender.operating_hero.defense * 2 / 100 + 1)
+                            defender.health = int(defender.health)
                             total_damage_attack -= original_health
                             while defender.health <= 0:
                                 defender.amount -= 1
@@ -606,25 +782,39 @@ class Player:
                             if defender.amount < 1:
                                 new_loc.has_hero = False
                                 new_loc.hero = None
+
                             if defender.has_retaliated == False and new_loc.has_hero:
-                                total_damage_defend = defender.amount * defender.damage
-                                original_defend_damage = total_damage_defend
                                 original_health = attacker.health
-                                attacker.health -= total_damage_defend
-                                total_damage_defend -= original_health
+                                total_damage_defense = None
+                                if type(defender.operating_hero) == Hero:
+                                    total_damage_defense = defender.amount * defender.damage * \
+                                                          ((defender.attack + defender.operating_hero.attack) * 2 / 100 + 1)
+                                else:
+                                    total_damage_defense = defender.amount * defender.damage * \
+                                                          (defender.attack * 2 / 100 + 1)
+                                total_damage_defense = int(total_damage_defense)
+                                original_defense_damage = total_damage_defense
+                                if type(attacker.operating_hero) == Hero:
+                                    attacker.health -= total_damage_defense / \
+                                                       ((attacker.defense + attacker.operating_hero.defense) * 2 / 100 + 1)
+                                else:
+                                    attacker.health -= total_damage_defense / \
+                                                       (attacker.operating_hero.defense * 2 / 100 + 1)
+                                attacker.health = int(attacker.health)
+                                total_damage_defense -= original_health
                                 while attacker.health <= 0:
                                     attacker.amount -= 1
                                     attacker.health = original_health
-                                    if total_damage_defend > 0:
-                                        attacker.health -= total_damage_defend
-                                        total_damage_defend -= original_health
+                                    if total_damage_defense > 0:
+                                        attacker.health -= total_damage_defense
+                                        total_damage_defense -= original_health
                                 if attacker.amount < 1:
                                     old_loc.has_hero = False
                                     old_loc.hero = None
                                 defender.has_retaliated = True
                                 self.dialogue_display(attacker.name + " attacks " + defender.name, " with " +
                                     str(original_attack_damage) + " damage!", defender.name + " retaliates with ",
-                                                      str(original_defend_damage) + " damage!")
+                                                      str(original_defense_damage) + " damage!")
 
                             else:
                                 self.dialogue_display(attacker.name + " attacks " + defender.name, " with " +
@@ -638,10 +828,31 @@ class Player:
         while True:
             Renderer.renderer(town)
             town.render.view_town(town, self)
+            visiting_hero = map.square[town.location[0]][town.location[1]].hero
+            if visiting_hero and visiting_hero.spellbook != []:
+                for spell in town.spellbook:
+                    if spell not in visiting_hero.spellbook:
+                        visiting_hero.spellbook.append(spell)
             choice = self.dialogue_return("What do you want to do?").lower()
             while choice not in("build", "recruit", "mage guild", "tavern", "exit"):
                 choice = self.dialogue_return("See the upper action bar for available commands.").lower()
-            if choice == "build":
+            if choice == "mage guild":
+                if visiting_hero and visiting_hero.spellbook == []:
+                    choice9 = "not yet"
+                    while choice9 != "":
+                        choice9 = self.dialogue_return(map.square[town.location[0]][town.location[1]].hero.name +
+                                          " does not own a spellbook. ", "Do you wish to purchase one for 500 gold?",
+                                          "Enter to purchase, ""C"" to cancel")
+                        if choice9 == "" and self.gold > 499:
+                            self.gold -= 500
+                            self.dialogue_display("You purchased a spellbook!")
+                            for spell in town.spellbook:
+                                if spell not in visiting_hero.spellbook:
+                                    visiting_hero.spellbook.append(spell)
+                        else:
+                            self.dialogue_display("You lack the necessary funds!")
+                town.view_spells()
+            elif choice == "build":
                 if town.has_built:
                     self.dialogue_display("You can only build once per turn.")
                 else:
@@ -690,7 +901,25 @@ class Player:
                                 else:
                                     self.dialogue_display("You lack the necessary funds and/or requirements.")
                     elif see_price == "upgrade mage guild":
-                        if town.guild_lvl == 1:
+                        if town.guild_lvl == 0:
+                            choice = self.dialogue_return("Mage Guild Lvl 1 ", "Price: 2000 Gold, 5 Wood, 5 Stone,"
+                                "2 Mercury, 2 Crystal, 2 Gems, 2 Sulfur", "Press Enter to construct this building.",
+                                "Type ""C"" to cancel.").lower()
+                            if choice != "c":
+                                if self.gold >= 2000 and self.wood > 4 and self.stone > 4 and self.mercury > 1 and\
+                                        self.crystal > 1 and self.gems > 1 and self.sulfur > 1:
+                                    self.gold -= 2000
+                                    self.wood -= 5
+                                    self.stone -= 5
+                                    self.mercury -= 2
+                                    self.gems -= 2
+                                    self.crystal -= 2
+                                    self.sulfur -= 2
+                                    town.guild_lvl = 1
+                                    town.has_built = True
+                                else:
+                                    self.dialogue_display("You lack the necessary funds.")
+                        elif town.guild_lvl == 1:
                             choice = self.dialogue_return("Mage Guild Lvl 2 ", "Price: 2000 Gold, 5 Wood, 5 Stone,"
                                 "4 Mercury, 4 Crystal, 4 Gems, 4 Sulfur", "Press Enter to construct this building.",
                                 "Type ""C"" to cancel.").lower()
@@ -900,7 +1129,6 @@ class Player:
                         self.dialogue_display("You lack the necessary funds.")
 
             elif choice == "recruit":
-                visiting_hero = map.square[town.location[0]][town.location[1]].hero
                 if visiting_hero == None:
                     choice = "not yet"
                     while choice not in ("", "c"):
@@ -939,8 +1167,7 @@ class Player:
                                 elif i == 6:
                                     available_stack = town.dw7amount
                                 amount = "not yet"
-                                while len(amount) > 2 or amount[0] not in (
-                                "1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "c"):
+                                while amount == "" or amount[0] not in ("1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "c"):
                                     amount = self.dialogue_return(see_price + ".",
                                                                   " Price: " + str(
                                                                       town.unit_names.get(see_price)) + " gold.",
@@ -1034,27 +1261,28 @@ class Town:
         self.dw_names = []
         self.unit_names_and_price = {}
         self.dw_color = ""
+        self.spellbook = []
 
         if self.kingdom == "Castle":
             self.dw_names = ["Guardhouse", "Archery", "Griffin Tower", "Barracks", "Monastery", "Training Grounds", "Portal Of Glory"]
             self.unit_names = {"Pikeman":60, "Archer":100, "Griffin":200, "Swordsman":300, "Monk":400,
                                "Cavalier":1000, "Angel":1000}
             self.buildings_available.extend(self.dw_names[2:7])
-            self.dw_color = '\033[93m'
+            self.dw_color = '\033[6;37;43m'
 
         elif self.kingdom == "Inferno":
             self.dw_names = ["Imp Crucible", "Hall Of Sins", "Kennels", "Demon Gate", "Hell Hole", "Fire Lake",
                              "Forsaken Palace"]
             self.unit_names = {"Imp":60, "Gog":125, "Hellhound":200, "Demon":250, "Pit Fiend":500, "Efreet":900, "Devil":2700}
             self.buildings_available.extend(self.dw_names[2:7])
-            self.dw_color = '\033[31m'
+            self.dw_color = '\033[6;37;41m'
 
         elif self.kingdom == "Rampart":
             self.dw_names = ["Centaur Stables", "Dwarf Cottage", "Homestead", "Enchanted Spring", "Dendroid Arches", "Unicorn Glade",
                              "Dragon Cliffs"]
             self.unit_names = {"Centaur":70, "Dwarf":120, "Wood Elf":200, "Pegasus":250, "Dendroid Guard":350, "Unicorn":850, "Green Dragon":2400}
             self.buildings_available.extend(self.dw_names[2:7])
-            self.dw_color = '\033[92m'
+            self.dw_color = '\033[6;37;42m'
 
         elif self.kingdom == "Tower":
             self.dw_names = ["Workshop", "Parapet", "Golem Factory", "Mage Tower", "Altar of Wishes", "Golden Pavilion",
@@ -1062,7 +1290,17 @@ class Town:
             self.unit_names = {"Gremlin": 30, "Stone Gargoyle": 130, "Stone Golem": 150, "Mage": 350, "Genie": 850, "Naga": 1100,
                                "Giant": 2000}
             self.buildings_available.extend(self.dw_names[2:7])
-            self.dw_color = '\033[94m'
+            self.dw_color = '\033[6;34;47m'
+
+    def view_spells(self):
+        print("")
+        print("" + '{:^40s}'.format("Spells of: " + self.name))
+        print("|" + '{:-^40s}'.format("") + "|")
+        for spell in self.spellbook:
+            print("|" + '{:-^40s}'.format("  " + spell.get("name") + ", Cost: " + str(spell.get("cost")) + " spell points.") + "|")
+            print("|" + '{:-^40s}'.format(" Effect: " + spell.get("effect") + " Damage: " + str(spell.get("damage"))) + "|")
+            print("|" + '{:-^40s}'.format("") + "|")
+        input("\n")
 
     def new_week(self):
         if self.hasdw1:
@@ -1169,6 +1407,8 @@ class Unit:
         self.isranged = input_ranger
         self.has_retaliated = False
         self.turn_left = True
+        self.spells_affected_by = []
+        self.battle_actions = []
         self.price = input_cost
 
     def __str__(self):
@@ -1176,13 +1416,14 @@ class Unit:
 
 class Hero:
     def __init__(self, input_name, input_kind, input_attack, input_defense, input_knowledge, input_spellpower,
-                 input_player):
+                 input_player, input_spellbook = []):
         self.name = input_name
         self.kind = input_kind
         self.level = 1
         self.attack = input_attack
         self.defense = input_defense
         self.knowledge = input_knowledge
+        self.spell_points = self.knowledge * 10
         self.spell_power = input_spellpower
         self.operating_player = input_player
         self.alive = True
@@ -1191,10 +1432,23 @@ class Hero:
         self.artefacts = []
         self.speed_left = 10
         self.new_speed = 10
+        self.spellbook = input_spellbook
+        self.can_throw_spell = False
 
     def __str__(self):
         if self.alive:
             return f'{self.name}'
+
+    def view_spells(self):
+        print("")
+        print("" + '{:^40s}'.format("Spells of: " + self.name + ", with " + str(self.spell_points) + " spell points."))
+        print("|" + '{:-^40s}'.format("") + "|")
+        for spell in self.spellbook:
+            print("|" + '{:-^40s}'.format(
+                "  " + spell.get("name") + ", Cost: " + str(spell.get("cost")) + " spell points.") + "|")
+            print("|" + '{:-^40s}'.format(" Effect: " + spell.get("effect") + " Damage: " + str(spell.get("damage") * self.spell_power)) + "|")
+            print("|" + '{:-^40s}'.format("") + "|")
+        input("\n")
 
     def create_starting_army(self):
         if self.operating_player.kingdom == "Castle":
@@ -1289,11 +1543,12 @@ class Hero:
     def confront_object(self, location):
         player = self.operating_player
         other_player = None
+
         if location.operated_by != None and location.operated_by != player:
             other_player = location.operated_by
 
         if location.object_name in ("wood", "stone", "crystal", "gems", "gold", "sulfur", "mercury") and \
-                location.operated_by == None:
+                location.operated_by != self:
             player.dialogue_display("You gain operation of a ", "", location.object_name, " mine!")
             location.operated_by = player
         match location.object_name:
@@ -1332,7 +1587,7 @@ class Hero:
                     choice = ""
                     while choice not in("Attack", "Defense", "Knowledge", "Spell Power"):
                         choice = player.dialogue_return("You have gained a level!", "",
-                                                        "Type the skill you want to increase.").capitalize()
+                                                        "Type the skill you want to increase.").title()
                     match choice:
                         case "Attack":
                             self.attack += 1
@@ -1387,7 +1642,7 @@ class Hero:
                         choice2 = ""
                         while choice2 not in ("Attack", "Defense", "Knowledge", "Spell Power"):
                             choice2 = player.dialogue_return("You have gained a level!", "",
-                                                            "Type the skill you want to increase.").capitalize()
+                                                            "Type the skill you want to increase.").title()
                         match choice2:
                             case "Attack":
                                 self.attack += 1
@@ -1471,7 +1726,7 @@ class Gameboard:
                                 if self.square[i+c][j+d].kind == "mountain":
                                     counter += 1
                         if counter < 3:
-                            self.square[i][j].kind = "forest"
+                            self.square[i][j].kind = "hills"
                             self.square[i][j].color = '\033[102m'
                             self.square[i][j].speed_drain = 2
                     elif self.square[i][j].kind == "water":
@@ -1481,7 +1736,7 @@ class Gameboard:
                                 if self.square[i+c][j+d].kind == "water":
                                     counter += 1
                         if counter < 3:
-                            self.square[i][j].kind = "forest"
+                            self.square[i][j].kind = "hills"
                             self.square[i][j].color = '\033[102m'
                             self.square[i][j].speed_drain = 2
 
@@ -1492,40 +1747,45 @@ class Gameboard:
             start_col = 0
             end_col = 0
             mines = ["wood", "stone", "mercury", "crystal", "gems", "sulfur", "gold"]
-            chests = ["Treasure", "Treasure", "Treasure", "Treasure", "Treasure", "Treasure"]
+            chests = ["Treasure", "Treasure", "Treasure", "Treasure"]
             buildings = ["XP_stone", "Pool", "Shrine1", "Shrine2"]
             artefacts = ["Sword", "Shield", "Boots"]
+            # computer = Player("Computer", 9, "")
+            # bad_actor = Hero(" ", "monster", 1, 1, 1, 1, computer)
+            # enemy1 = Unit("Harpy", 2, 10, 4, 5, 2, 10, 4, 60, bad_actor)
+            # enemies = [enemy1, enemy1]
             if i == 0:
-                start_row = 1
+                start_row = 0
                 end_row = int(input_rows / 2 - 1)
-                start_col = 1
+                start_col = 0
                 if number_of_players < 3:
-                    end_col = input_cols - 1
+                    end_col = input_cols
                 else:
-                    end_col = int(input_cols / 2 - 1)
+                    end_col = int(input_cols / 2)
             elif i == 1:
-                start_row = int(input_rows / 2 + 1)
-                end_row = input_rows - 1
-                start_col = 1
+                start_row = int(input_rows / 2)
+                end_row = input_rows
+                start_col = 0
                 if number_of_players < 3:
-                    end_col = input_cols - 1
+                    end_col = input_cols
                 else:
-                    end_col = int(input_cols / 2 - 1)
+                    end_col = int(input_cols / 2)
             elif i == 2:
-                start_row = 1
-                end_row = int(input_rows / 2 - 1)
-                start_col = int(input_cols / 2 + 1)
-                end_col = input_cols - 1
+                start_row = 0
+                end_row = int(input_rows / 2)
+                start_col = int(input_cols / 2)
+                end_col = input_cols
             elif i == 3:
-                start_row = int(input_rows / 2 + 1)
-                end_row = input_rows - 1
-                start_col = int(input_cols / 2 + 1)
-                end_col = input_cols - 1
+                start_row = int(input_rows / 2)
+                end_row = input_rows
+                start_col = int(input_cols / 2)
+                end_col = input_cols
 
             self.populate(mines, start_row, end_row, start_col, end_col)
             self.populate(chests, start_row, end_row, start_col, end_col)
             self.populate(buildings, start_row, end_row, start_col, end_col)
             self.populate(artefacts, start_row, end_row, start_col, end_col)
+            # self.populate(enemies, start_row, end_row, start_col, end_col)
 
     def populate(self, lst, start_row, end_row, start_col, end_col):
         while len(lst) > 0:
@@ -1543,11 +1803,11 @@ class Gameboard:
         rows = len(self.square)
         cols = len(self.square[0])
         if moving == True:
-            print(f"{p.color}Commands:         Move with \"QWE ASD ZX\"          Exit moving with \"o\"                "
+            print(f"{p.color}Commands:        Move with \"QWE ASD ZX\"          Exit moving with \"o\"                "
                   f"                                                                                                   "
                   f"                                            \033[0m")
         else:
-            print(f"{p.color}Commands:         \"View\"          \"Move\"          \"Town\"          \"Spells\"        "
+            print(f"{p.color}Commands:        \"View\"          \"Move\"          \"Town\"          \"Spells\"        "
                   f"  \"End turn\"                                                                                     "
                   f"                                                  \033[0m")
         for i in range(rows):
@@ -1559,13 +1819,13 @@ class Gameboard:
             print("")
         print(f"{p.color} Wood:{p.wood}      Stone:{p.stone}      Crystal:{p.crystal}       Gems:{p.gems}        "
               f"Sulfur:{p.sulfur}        Mercury:{p.mercury}        Gold:{p.gold}                                      "
-              f"                                                                                           \033[0m")
+              f"                                                                   Day: {p.weekday} Week: {p.week}         \033[0m")
 
     def view_battlefield(self, p, attacker):
         rows = len(self.square)
         cols = len(self.square[0])
-        print(f"{p.color} Commands:         \"r\" for ranged attack          \"Spells\" for spellbook           "
-              f"\"o\" to stop moving (skip turn)                                             \033[0m ")
+        print(f"{p.color}Commands:        \033[5m \"r\"\033[0m{p.color} for ranged attack          \"Spells\" for spellbook           "
+              f"\"o\" to stop moving (end turn)                                             \033[0m ")
         print("|---------------------------------------------------------------------------------------------------"
               "-------------------------------------------------------|")
         for i in range(rows):
@@ -1599,19 +1859,19 @@ class Gameboard:
             print("")
         print(
             f"{p.color}Wood:{p.wood} Stone:{p.stone} Crystal:{p.crystal} Gems:{p.gems} Sulfur:{p.sulfur} Mercury:"
-            f"{p.mercury} Gold:{p.gold} {c.dw_color}     |      {list(c.unit_names)[0]}:{c.dw1amount} | "
+            f"{p.mercury} Gold:{p.gold}      {c.dw_color}      {list(c.unit_names)[0]}:{c.dw1amount} | "
             f"{list(c.unit_names)[1]}:{c.dw2amount} | {list(c.unit_names)[2]}:{c.dw3amount} | {list(c.unit_names)[3]}:"
             f"{c.dw4amount} | {list(c.unit_names)[4]}:{c.dw5amount} | {list(c.unit_names)[5]}:{c.dw6amount} |"
             f" {list(c.unit_names)[6]}:{c.dw7amount} \033[0m")
 
 class Landscape:
     #os.system('color')
-    HILLS = '\033[42m'
-    WATER = '\033[44m'
+    HILLS = '\033[102m'
+    WATER = '\033[104m'
     MOUNTAIN = '\033[100m'
     PLAINS = '\033[43m'
-    FOREST = '\033[102m'
-    RED = '\033[31m'
+    FOREST = '\033[42m'
+    RED = '\033[91m'
     DW = '\033[93m'
     BOLD = '\033[1m'
     END = '\033[0m'
@@ -1700,7 +1960,12 @@ class Landscape:
 
     def print_structure(self, input_player):
         if self.has_object and self.seen[input_player.number-1] == 1:
-            return f'{self.color}{Landscape.DW}' +'{: ^6s}'.format(self.object_name[:6]) + f'{Landscape.END}'
+            if self.operated_by:
+                return f'{self.operated_by.color}' +'{: ^6s}'.format(self.object_name[:6]) + f'{Landscape.END}'
+            elif type(self.object_name) == Unit:
+                return f'{self.color}{Landscape.RED}' + '{: ^6s}'.format(self.object_name.name[:6].upper()) + f'{Landscape.END}'
+            else:
+                return f'{self.color}{Landscape.DW}' +'{: ^6s}'.format(self.object_name[:6]) + f'{Landscape.END}'
         elif self.seen[input_player.number-1] == 1:
             return f'{self.color}      {Landscape.END}'
         else:
@@ -1717,9 +1982,11 @@ class Landscape:
 
     def print_war1row(self, current_player):
         self.color = Landscape.END
-        if self.has_hero and self.hero.operating_hero.operating_player != current_player:
-            return f'|           '
-        elif self.has_hero:
+        if self.has_hero and self.hero.amount > 0 and self.hero.spells_affected_by:
+            return f'|{Landscape.FOREST}' + '{: ^11s}'.format(self.hero.spells_affected_by[0][:9].capitalize()) + \
+                   f'{Landscape.END}'
+
+        elif self.has_hero and self.hero.amount > 0:
             return f'|           '
         else:
             return f'|           '
@@ -1731,8 +1998,10 @@ class Landscape:
                 self.hero.name[:7].upper() + ", " + str(self.hero.amount)) + f'{Landscape.END}'
 
         elif self.has_hero and self.hero.amount > 0:
-            if attacker.location == self.hero.location:
-                self.color = '\033[33m'
+            if attacker.location == self.hero.location and attacker.isranged:
+                self.color = '\033[5;30;103m'
+            elif attacker.location == self.hero.location:
+                self.color = '\033[6;30;103m'
             return f'|{self.color}' + '{: ^11s}'.format(
                 self.hero.name[:7].upper() + ", " + str(self.hero.amount)) + f'{Landscape.END}'
         else:
@@ -1741,10 +2010,10 @@ class Landscape:
     def print_war3row(self, current_player):
         self.color = Landscape.END
         if self.has_hero and self.hero.operating_hero.operating_player != current_player and self.hero.amount > 0:
-            return f'|{Landscape.RED}' + '{: ^11s}'.format(str(self.hero.health) + "hp|" + str(self.hero.new_speed)
+            return f'|{Landscape.RED}' + '{: ^11s}'.format(str(self.hero.health) + "hp|" + str(self.hero.speed_left)
                                                            + "sp") + f'{Landscape.END}'
         elif self.has_hero and self.hero.amount > 0:
             return f'|' + '{: ^11s}'.format(str(self.hero.health) + "hp"
-                                                                    "|" + str(self.hero.new_speed) + "sp")
+                                                                    "|" + str(self.hero.speed_left) + "sp")
         else:
             return f'|           '
