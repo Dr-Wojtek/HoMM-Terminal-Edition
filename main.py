@@ -3,12 +3,12 @@ from entities import Gameboard
 import os
 
 # This program is a hobby project. Its goal is to simulate the game 'Heroes of Might and Magic 3' in the terminal.
-# The code is written by Alex Stråe, from Sweden, aka Dr-Wojtek @ Git Hub. Creatures, heroes and town attributes and
-# names, are, where copied correctly, copied from the original game 'Heroes of Might and Magic 3'.
+# The code is written by Alex Stråe, from Sweden, aka Dr-Wojtek @ GitHub. Creatures, heroes and town attributes and
+# names are, where copied correctly, copied from the original game 'Heroes of Might and Magic 3'.
 
 class Gamecore:
     map_size = "large"
-    num_rows = 26
+    num_rows = 32
     num_cols = 38
     player_one = None
     player_two = None
@@ -20,28 +20,28 @@ class Gamecore:
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def dialogue_display(input1="", input2="", input3="", input4=""):
-        print("" + '{:-^140s}'.format(""))
+        print("-" + '{:-^140s}'.format("") + "-")
         print("|" + '{:^140s}'.format(input1 + input2) + "|")
         print("|" + '{:^140s}'.format(input3 + input4) + "|")
-        print("" + '{:-^140s}'.format(""))
+        print("-" + '{:-^140s}'.format("") + "-")
 
     def dialogue_return(input1="", input2="", input3="", input4=""):
-        print("" + '{:-^140s}'.format("-"))
+        print("-" + '{:-^140s}'.format("-") + "-")
         print("|" + '{:^140s}'.format(input1 + input2) + "|")
         print("|" + '{:^140s}'.format(input3 + input4) + "|")
-        print("" + '{:-^140s}'.format("-"))
+        print("-" + '{:-^140s}'.format("-") + "-")
         choice = input("\n")
         return choice
 
     def print_start():
         choice = input("Is this your first time playing Heroes of Might and Magic - Terminal Edition? Y/N:\n").capitalize()
         if choice == "Y":
-            print("Maximize this window until you've seen the map. Then adjust accordingly.\n")
-            print("It is recommended to use a light grey background with black letters for your terminal.\n")
-            print("If the map has black lines in it your font size is too large. Lower your font size in your settings.\n")
+            print("Maximize this window until you've seen the map. Then adjust accordingly. This game was developed on 1440p resolution.\n")
+            print("It is recommended to use a light grey background with black letters for your terminal / command line.\n")
+            print("If the map has black lines in it, your font size is too large. Lower your font size in your terminal settings.\n")
             input("Press Enter to continue.\n")
 
-# GAME START
+    # GAME START
     print_start()
     clear_window()
     dialogue_display("Welcome to Heroes of Might and Magic - Terminal Edition!")
@@ -50,7 +50,6 @@ class Gamecore:
         number_of_players = dialogue_return("Choose the number of players by typing 2, 3 or 4:")
     number_of_players = int(number_of_players)
     list_of_players = []
-
     for i in range(number_of_players):
         p = None
         if i == 0:
@@ -62,21 +61,16 @@ class Gamecore:
         elif i == 3:
             p = Player(dialogue_return("Player 4: Yes?").capitalize(), 4, "\033[1;37;45m")
         list_of_players.append(p)
-
     clear_window()
-
     map = Gameboard(num_rows, num_cols)
     map.beautifier(num_rows, num_cols)
-
     for p in list_of_players:
         p.choose_kingdom(available_kingdoms)
         p.create_heroes()
         p.create_towns()
         p.set_locations(number_of_players, num_rows, num_cols, map)
         p.update_discovery(map)
-
     map.populator(num_rows, num_cols, number_of_players)
-
     while len(list_of_players) > 1:
         for p in list_of_players:
             player = p
@@ -86,6 +80,5 @@ class Gamecore:
             map.view_board(player)
             choice = dialogue_return("What do you want to do?", "", "")
             player.interpretor(choice, map, list_of_players)
-
-            # TURN ENDS NOW
+    # TURN ENDS NOW
     dialogue_display(list_of_players[0].name, " has won the game!!!")
