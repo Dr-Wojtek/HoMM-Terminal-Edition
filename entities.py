@@ -1,7 +1,4 @@
-import random
-import os
-import time
-import sys
+import os, time, sys, random
 from renderer import Renderer
 
 # This program is a hobby project. Its goal is to simulate the game 'Heroes of Might and Magic 3' in the terminal.
@@ -261,11 +258,12 @@ class Player:
         elif choice.lower() == "move":
             if len(self.heroes) == 1:
                 hero_choice = self.heroes[0].name
+                self.move_obj(hero_choice, map)
             elif self.heroes == []:
                 self.dialogue_display("You have no heroes left! Recruit new ones in a tavern, in a town.")
             else:
                 hero_choice = input("Move which hero?\n")
-            self.move_obj(hero_choice, map)
+                self.move_obj(hero_choice, map)
 
         elif choice.lower() == "spells":
             if len(self.heroes) == 1:
@@ -295,7 +293,7 @@ class Player:
                         hero.spell_points -= spell_cost
                         self.dialogue_display(hero.name + " has a boat until they step on ground!")
             else:
-                print(hero.name + " does not have a spellbook.")
+                self.dialogue_display(hero.name + " does not have a spellbook.")
 
         elif choice.lower() == "town":
             if self.towns != []:
@@ -317,6 +315,7 @@ class Player:
 
         else:
             print("Use commands listed in the action bar above the map to play the game.\n")
+
         for i in range(len(list_of_players)):
             if list_of_players[i].heroes_left == 0 and list_of_players[i].towns == []:
                 list_of_players[i].hasLost = True
@@ -1151,8 +1150,8 @@ class Player:
                                     available_stack = town.dw6amount
                                 elif i == 6:
                                     available_stack = town.dw7amount
-                                amount = "not yet"
-                                while amount == "" or amount[0] not in ("1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "c"):
+                                amount = ""
+                                while amount == "":
                                     amount = self.dialogue_return(see_price + ".",
                                                                   " Price: " + str(
                                                                       town.unit_names.get(see_price)) + " gold.",
@@ -1161,44 +1160,48 @@ class Player:
                                 if amount == "C" or amount == "c":
                                     break
                                 else:
-                                    amount = int(amount)
-                                    found = False
-                                    if amount * town.unit_names.get(
-                                            see_price) <= self.gold and amount <= available_stack:
-                                        if len(visiting_hero.army) == 7:
-                                            for unit in visiting_hero.army:
-                                                if unit.name == see_price:
-                                                    found = True
-                                                    self.dialogue_display(
-                                                        "Your army has run out of space.", "",
-                                                        "The unit will recruit to first existing stack.")
-                                                    break
-                                            if not found:
-                                                self.dialogue_display("Your army is full! Press Enter to exit.")
+                                    try:
+                                        amount = int(amount)
+                                    except ValueError:
+                                        print("Numbers only, or C to exit.")
+                                        break
+                                found = False
+                                if amount * town.unit_names.get(
+                                        see_price) <= self.gold and amount <= available_stack:
+                                    if len(visiting_hero.army) == 7:
+                                        for unit in visiting_hero.army:
+                                            if unit.name == see_price:
+                                                found = True
+                                                self.dialogue_display(
+                                                    "Your army has run out of space.", "",
+                                                    "The unit will recruit to first existing stack.")
                                                 break
-                                        if found:
-                                            visiting_hero.create_unit(town.kingdom, see_price, amount, True)
-                                        else:
-                                            visiting_hero.create_unit(town.kingdom, see_price, amount)
-                                        if i == 0:
-                                            town.dw1amount -= amount
-                                        elif i == 1:
-                                            town.dw2amount -= amount
-                                        elif i == 2:
-                                            town.dw3amount -= amount
-                                        elif i == 3:
-                                            town.dw4amount -= amount
-                                        elif i == 4:
-                                            town.dw5amount -= amount
-                                        elif i == 5:
-                                            town.dw6amount -= amount
-                                        elif i == 6:
-                                            town.dw7amount -= amount
-                                        self.gold -= amount * town.unit_names.get(see_price)
-                                        self.dialogue_return(str(amount) + " " + see_price + " recruited!")
+                                        if not found:
+                                            self.dialogue_display("Your army is full! Press Enter to exit.")
+                                            break
+                                    if found:
+                                        visiting_hero.create_unit(town.kingdom, see_price, amount, True)
                                     else:
-                                        self.dialogue_display("You either do not have the gold", "",
-                                                              "or lack available units.")
+                                        visiting_hero.create_unit(town.kingdom, see_price, amount)
+                                    if i == 0:
+                                        town.dw1amount -= amount
+                                    elif i == 1:
+                                        town.dw2amount -= amount
+                                    elif i == 2:
+                                        town.dw3amount -= amount
+                                    elif i == 3:
+                                        town.dw4amount -= amount
+                                    elif i == 4:
+                                        town.dw5amount -= amount
+                                    elif i == 5:
+                                        town.dw6amount -= amount
+                                    elif i == 6:
+                                        town.dw7amount -= amount
+                                    self.gold -= amount * town.unit_names.get(see_price)
+                                    self.dialogue_return(str(amount) + " " + see_price + " recruited!")
+                                else:
+                                    self.dialogue_display("You either do not have the gold", "",
+                                                          "or lack available units.")
             elif choice == "view":
                 self.view_info()
             elif choice == "exit":
@@ -1408,7 +1411,7 @@ class Town:
         print("" + '{:^40s}'.format("Spells of: " + self.name))
         print("|" + '{:-^40s}'.format("") + "|")
         for level in range(len(self.spellbook)):
-            print("|" + '{:-^40s}'.format(" Level " + str(level) + " ") + "|")
+            print("|" + '{:-^40s}'.format(" Level " + str(level+1) + " ") + "|")
             for spell in self.spellbook[level]:
                 print("|" + '{:-^40s}'.format("  " + spell.get("name") + ", Cost: " + str(spell.get("cost")) + " spell points.") + "|")
                 print("|" + '{:-^40s}'.format(" Effect: " + spell.get("effect") + " Damage: " + str(spell.get("damage"))) + "|")
@@ -1545,8 +1548,8 @@ class Hero:
         self.location = [0, 0]
         self.army = []
         self.artefacts = []
-        self.speed_left = 10
-        self.new_speed = 10
+        self.speed_left = 13
+        self.new_speed = 13
         self.spellbook = input_spellbook
         self.can_throw_spell = False
         self.has_boat = False
@@ -1568,8 +1571,8 @@ class Hero:
             if count > 0:
                 speedbar += "  "
                 count -= 1
-        speedbar += "\033[0m Forest (\033[42m \033[0m) drain twice as many movement points as hills and plains " \
-                    "(\033[102m \033[43m \033[0m). Mountain (\033[100m \033[0m) drain eight times points.\n"
+        speedbar += "\033[0m Movement points cost depends on territory. Forest (\033[42m \033[0m): 2. Hills and plains " \
+                    "(\033[102m \033[43m \033[0m): 1. Mountain (\033[100m \033[0m): 8. Water cannot be passed without the Summon Boat spell.\n"
         return speedbar
 
     def view_spells(self):
@@ -1744,8 +1747,8 @@ class Hero:
                     location.met_heroes.append(self.name)
                     choice = ""
                     while choice not in("Attack", "Defense", "Knowledge", "Spell Power"):
-                        choice = player.dialogue_return("You have gained a level!", "",
-                                                        "Type the skill you want to increase.").title()
+                        choice = player.dialogue_return("You have gained a level!", " Type the skill you want to increase.",
+                                                        "", "Attack / Defense / Knowledge / Spell Power").title()
                     match choice:
                         case "Attack":
                             self.attack += 1
@@ -1795,8 +1798,8 @@ class Hero:
                         self.level += 1
                         choice2 = ""
                         while choice2 not in ("Attack", "Defense", "Knowledge", "Spell Power"):
-                            choice2 = player.dialogue_return("You have gained a level!", "",
-                                                            "Type the skill you want to increase.").title()
+                            choice2 = player.dialogue_return("You have gained a level!", " Type the skill you want to increase.",
+                                                            "", "Attack / Defense / Knowledge / Spell Power").title()
                         match choice2:
                             case "Attack":
                                 self.attack += 1

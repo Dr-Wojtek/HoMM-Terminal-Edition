@@ -36,15 +36,17 @@ class Gamecore:
     def print_start():
         choice = input("Is this your first time playing Heroes of Might and Magic - Terminal Edition? Y/N:\n").capitalize()
         if choice == "Y":
-            print("Maximize this window until you've seen the map. Then adjust accordingly. This game was developed on 1440p resolution.\n")
-            print("It is recommended to use a light grey background with black letters for your terminal / command line.\n")
-            print("If the map has black lines in it, your font size is too large. Lower your font size in your terminal settings.\n")
+            print("\n\nIt is recommended to run this game in full screen, or at least as large as possible. When the map opens, there are two strongly coloured action bars; top and bottom.\n"
+                  "Make sure both of these can be seen, they display all available commands to you. This game was developed on 1440p resolution.\n\n")
+            print("If the map looks corrupted with black lines and/or you cannot see top and bottom action bars, your resolution is too low. Lower your font size in your terminal settings.\n")
+            print("It is recommended to use a light grey background with black letters for your terminal / command line.\n\n")
             input("Press Enter to continue.\n")
 
     # GAME START
+    clear_window()
     print_start()
     clear_window()
-    dialogue_display("Welcome to Heroes of Might and Magic - Terminal Edition!")
+    dialogue_display("Welcome to Heroes of Might and Magic 3 - Terminal Edition!")
     number_of_players = dialogue_return("How many human players?", "", "2-4:")
     while number_of_players not in ("2", "3", "4"):
         number_of_players = dialogue_return("Choose the number of players by typing 2, 3 or 4:")
