@@ -1,4 +1,4 @@
-# See this projects wiki for a detailed breakdown of this program: https://github.com/Dr-Wojtek/HoMM-Terminal-Edition/wiki
+# See this project's wiki for a detailed breakdown of this program: https://github.com/Dr-Wojtek/HoMM-Terminal-Edition/wiki
 
 
 This game requires python3 installed. Set dir of the .py files as current working directory and type python3 main.py to start the game.
