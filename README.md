@@ -1,4 +1,4 @@
-#Launching the game
+# Launching the game
 * This game requires python3 installed. Set dir of the .py files as current working directory and type python3 main.py (in your terminal) to start the game.
 * It is necessary to run this game in full screen on 1080p resolution with standard size of objects.
 * If the map looks corrupted with black lines and/or you cannot see top and bottom action bars, your resolution is too low. Lower your font size in your terminal settings, open a new window with the new setting and run the game again.
@@ -6,7 +6,6 @@
 * When the map opens you should see two action bars; top and bottom. Make sure both of these can be seen; they display all available commands and information to you. If find yourself in a situation when you don't know what command to use or what you are able to do, look at the top action bar.
 
 # A brief overview of the features of this project.
-
 The goal of this project is to implement the game Heroes of Might and Magic 3 into the terminal, with as many features from the original game as possible.
 
 The game is written in Python 3.
@@ -104,38 +103,26 @@ The town renders every time a town command is issued, and as such it is "real-ti
 There are quite a few limitations of the game when comparing to the original game. Some mentions:
 
 You cannot exchange artefacts or armies between heroes or towns, and defeating a hero will not yield their artefacts.
-
 A hero can have, for example, two sword artefacts simultaneously and receive an attack bonus for both of them.
-
 There is no marketplace, blacksmith or several other kingdom-specific buildings (such as the Treasury or Library).
-
 Only spells up to and including level 2 are available at time of writing.
-
 There are no skills such as Offense, Magic Resistance, Estates, Wisdom etc to learn for heroes. 
-
 Only four kingdoms are available: Tower, Castle, Rampart and Inferno
-
 The upgraded version of each unit is not available at the time of writing.
-
 A player starts with one hero and can only hire two more in total.
-
 No option to save or load a game
-
 There are no obelisks and no grail to be found, neither is there an "underground" map available.
-
 Movement on the map is done one step at a time. On the battlefield you can insert several steps at a time and then press enter.
+The different Fort/Citadel/Castle buildings are purely cosmetic and for creature dwelling requirements at the time; There is no defence provided if your town is attacked.
+A hero cannot equip a ballista, catapult, or other devices of war.
 
 ## Future updates
 Switching to storing kingdom specific information in a database.
-
+Adding defence structures for town defense in-battle, and therefore naturally, a catapult for the attacking hero
 Adding more kingdoms
-
 Possibly adding the original music
-
 An AI for controlling a hero, unlocking the possibility of a computer-controlled player
-
 Placing of loose piles of resources on the map
-
 And much else.
 
 
