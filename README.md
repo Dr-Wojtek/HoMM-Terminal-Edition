@@ -4,7 +4,7 @@
 * If the map looks corrupted with black lines and/or you cannot see top and bottom action bars, your resolution is too low. Lower your font size in your terminal settings, open a new window with the new setting and run the game again.
 * It is recommended to use a light grey background with black letters for your terminal / command line. This way, the selected colors in game will stand out more, as opposed to if you have a terminal using strong colours as default.
 * When the map opens you should see two action bars; top and bottom. Make sure both of these can be seen; they display all available commands and information to you. If find yourself in a situation when you don't know what command to use or what you are able to do, look at the top action bar.
-* **External libraries: None!**
+* **Third-party libraries: None!**
 
 # How to play
 ### The map
