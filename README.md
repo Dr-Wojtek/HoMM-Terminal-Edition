@@ -161,7 +161,7 @@ There are quite a few limitations of the game when comparing to the original gam
 * Switching to storing kingdom specific information in a database.
 * Adding defence structures for town defense in-battle, and therefore naturally, a catapult for the attacking hero
 * Adding more kingdoms
-vPossibly adding the original music
+* Possibly adding the original music
 * An AI for controlling a hero, unlocking the possibility of a computer-controlled player
 * Placing of loose piles of resources on the map
 * And much else.
