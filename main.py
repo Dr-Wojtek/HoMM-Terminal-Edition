@@ -1,35 +1,24 @@
-from entities import Player
 from entities import Gameboard
+from player import Player, Dialogues
 import os
 
-# This program is a hobby project. Its goal is to simulate the game 'Heroes of Might and Magic 3' in the terminal.
-# The code is written by Alex Stråe, from Sweden, aka Dr-Wojtek @ GitHub. Creatures, heroes and town attributes and
+# Code written by Alex Stråe from Sweden. Creatures, heroes and town attributes and
 # names are, where copied correctly, copied from the original game 'Heroes of Might and Magic 3'.
 
-class Gamecore:
-    map_size = "large"
+class Main:
     num_rows = 32
     num_cols = 38
-    player_one = None
-    player_two = None
-    player_three = None
-    player_four = None
-    available_kingdoms = ["Castle", "Inferno", "Rampart", "Tower"]
+    available_kingdoms = ["Castle", "Necropolis", "Inferno", "Rampart", "Dungeon", "Tower"]
 
     def clear_window():
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def dialogue_display(input1="", input2="", input3="", input4=""):
-        print("-" + '{:-^140s}'.format("") + "-")
-        print("|" + '{:^140s}'.format(input1 + input2) + "|")
-        print("|" + '{:^140s}'.format(input3 + input4) + "|")
-        print("-" + '{:-^140s}'.format("") + "-")
+    def dialogue_display(input1="", input2="", input3="", input4="", width=140, box=True, lines=False):
+        print(Dialogues.box(input1+input2+"\n"+input3+input4, width, box, lines))
+        input("\n")
 
-    def dialogue_return(input1="", input2="", input3="", input4=""):
-        print("-" + '{:-^140s}'.format("-") + "-")
-        print("|" + '{:^140s}'.format(input1 + input2) + "|")
-        print("|" + '{:^140s}'.format(input3 + input4) + "|")
-        print("-" + '{:-^140s}'.format("-") + "-")
+    def dialogue_return(input1="", input2="", input3="", input4="", width=140, box=True, lines=False):
+        print(Dialogues.box(input1+input2+"\n"+input3+input4, width, box, lines))
         choice = input("\n")
         return choice
 
@@ -72,15 +61,14 @@ class Gamecore:
         p.create_towns()
         p.set_locations(number_of_players, num_rows, num_cols, map)
         p.update_discovery(map)
-    map.populator(num_rows, num_cols, number_of_players)
+    computer = Player("Computer", 9, "")
+    map.populator(num_rows, num_cols, number_of_players, computer)
     while len(list_of_players) > 1:
-        for p in list_of_players:
-            player = p
+        for player in list_of_players:
             clear_window()
             dialogue_return(player.name, "'s turn!", "Press Enter.")
             player.new_turn()
             map.view_board(player)
-            choice = dialogue_return("What do you want to do?", "", "")
+            choice = dialogue_return("What do you want to do?")
             player.interpretor(choice, map, list_of_players)
-    # TURN ENDS NOW
     dialogue_display(list_of_players[0].name, " has won the game!!!")
