@@ -1,7 +1,7 @@
 # Features
 * Kingdoms 'Castle', 'Necropolis', 'Inferno', 'Rampart', 'Dungeon', 'Tower' available.
 * Available kingdoms have their respective units available for recruitment, creature dwellings and to an extent, spells and heroes. Units have their true attributes, such as attack, damage, speed, cost.
-* 2 - 4 human players can play. An AI controls rogue enemies during battle.
+* 2 - 4 human players. An AI controls rogue enemies during battle.
 * Opponent's towns can be conquered. Artefacts can be picked up. All resource mines can be occupied. 
 * Recruit more heroes in your tavern
 * Most buildings are available to build in respective towns
