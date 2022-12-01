@@ -44,13 +44,14 @@ If you move your hero to an object, the hero will confront it. If the object is 
 
 ### Battle
 When in battle, other commands are available to you. The current units turn will be marked with yellow.
-![battlefield](https://user-images.githubusercontent.com/99674687/201476930-f7a524b6-6ac1-4cd9-9594-73f7eb3117b8.png)
+![Skärmavbild 2022-12-01 kl  10 57 29](https://user-images.githubusercontent.com/99674687/205023585-882c5c0d-6131-41a6-b71f-4ba8217c1267.png)
 
-_The hero Zydar has attacked a rogue enemy (AI-controlled) stack of Serpent Flies. Gog, a ranged unit, is choosing its target. A Serpent Fly affected by the spell Slow is seen in the bottom right.
-The "sp" attribute for the slowed Serpent Fly shows original speed since the unit is not active - when it reaches its turn, the sp number will be lower than its original, on behalf of the spell._
 
+_Player One gets overrun by the necromancer hero Isra. Multiple spells are active. The effect of Slow can be seen on one of the Pikemen (2 speed vs 4 speed on Pikeman without Slow). Isra's Black Knight strikes the poor Pikeman, retaliating with a mere 6 damage. The top action bar changes color based on player turn (blue for player two, red for player one) and the currently active unit is marked with yellow. Enemy troops are shown in red._
+
+Faster units move first.
 A units name will blink if it is a ranged unit. Type r to name your target and shoot it. 
-When moving, you will use QWEASDZX to navigate, however, in Battle you are able to enter several steps at once. Moving 3 grids to the right at once can be done with ddd + Enter, for example, as opposed to d + enter, d + enter, d + enter etc as when in the adventure map.
+When moving, you will use QWEASDZX to navigate, however, in Battle you are able to enter several steps at once. Moving 3 grids to the right at once can be done with ddd + Enter, for example, as opposed to d + enter, d + enter, d + enter as when in the adventure map.
 To attack an enemy, just navigate to its tile.
 * You can also throw spells in battle.
 * You cannot retreat or negotiate out of a battle at the time of writing.
